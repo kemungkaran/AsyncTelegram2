@@ -147,6 +147,7 @@ public:
     //             (in json format or using the inlineKeyboard/ReplyKeyboard class helper)
     //   wait:    true if method must be blocking
     bool sendMessage(const TBMessage &msg, const char *message, char *keyboard = nullptr, bool wait = false);
+int32_t sendMessageAndGetId(int64_t chat_id, const char* text, const char* keyboard = nullptr);
 
     // sendMessage function overloads
     inline bool sendMessage(const TBMessage &msg, const String &message, String keyboard = "")

@@ -926,3 +926,27 @@ bool AsyncTelegram2::deleteMessage(int64_t chat_id, int32_t message_id)
   serializeJson(root, payload);
   return sendCommand("deleteMessage", payload.c_str());
 }
+int32_t AsyncTelegram2::sendMessageAndGetId(int64_t chat_id, const char* text, const char* keyboard) {
+  DynamicJsonDocument root(m_JsonBufferSize);
+  root["chat_id"] = chat_id;
+  root["text"] = text;
+  if (keyboard) {
+    root["reply_markup"] = serialized(keyboard);
+  }
+  root["parse_mode"] = m_formatType == MARKDOWN ? "MarkdownV2" :
+                       m_formatType == HTML ? "HTML" : "";
+
+  root.shrinkToFit();
+  String payload;
+  serializeJson(root, payload);
+
+  String response = sendCommand("sendMessage", payload.c_str(), true);
+  if (response.length() == 0) return -1;
+
+  DynamicJsonDocument doc(1024);
+  DeserializationError error = deserializeJson(doc, response);
+  if (error) return -1;
+
+  if (!doc["ok"]) return -1;
+  return doc["result"]["message_id"];
+}
